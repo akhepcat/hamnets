@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 # (c) 2023 Leif Sawyer
 # License: GPL 3.0 (see https://github.com/akhepcat/)
-# Permanent home:  https://github.com/akhepcat/Miscellaneous/
-# Direct download: https://raw.githubusercontent.com/akhepcat/Miscellaneous/master/hamnets
+# Permanent home:  https://github.com/akhepcat/hamnets
+# Direct download: https://raw.githubusercontent.com/akhepcat/hamnets/main/hamnets
 # 
 use POSIX qw(strftime);
 use Getopt::Long;
@@ -12,8 +12,8 @@ use Env qw(HOME);
 # my $HAMLIB="/usr/local/src/HamRadio/Hamlib";
 # my $RIGCTLp="$HAMLIB/tests/.libs/rigctl";
 # my $LDP="LD_PRELOAD=$HAMLIB/src/.libs/libhamlib.so.4";
+# my $RIGCTL="$LDP $RIGCTLp";
 
-my $RIGCTL="$LDP $RIGCTLp";
 my $PROG=$0;
 my $VERSION="1.0";
 
@@ -291,6 +291,9 @@ sub set_net {
 
 	# Lastly, figure out which rig to send it to, and push the configs!
 	my $r=$nets{$n}{"rig"};
+	if ( ! $RIGCTL ) {
+		$RIGCTL="rigctl";
+	}
 #	print( qq^bash -c "$RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} <(($cmdlist)) \n" ^ );
 	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} - \n" ^ );
 }
@@ -468,6 +471,7 @@ if ( ! $arg ) {
 
 
 if (defined($nets{$arg})) {
+	pwarn "Selected $arg\n";
 	set_net($arg);
 } else {
 	perror "ERROR: no such net\n";
