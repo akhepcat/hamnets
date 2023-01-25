@@ -8,8 +8,8 @@
   The application will display any configured 'Nets, sorted by their rig,
   then by the day, followed by the time.
 
-  $ hamnets
-  net for today can be:
+    $ hamnets
+      net for today can be:
 
         FT-817:
            morning (145.5000 MHz  FM) - 10:00 (UMTWRFS) - Alaska Morning Net
