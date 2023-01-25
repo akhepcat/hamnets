@@ -8,20 +8,15 @@ use POSIX qw(strftime);
 use Getopt::Long;
 use Env qw(HOME);
 
-# Just comment these out to use the system versions instead of the code-testing
-my $HAMLIB="/usr/local/src/HamRadio/Hamlib";
-my $RIGCTLp="$HAMLIB/tests/.libs/rigctl";
-my $LDP="LD_PRELOAD=$HAMLIB/src/.libs/libhamlib.so.4";
-my $RIGCTL="$LDP $RIGCTLp";
-
 my $PROG=$0;
-my $VERSION="2.0b1";
+my $VERSION="2.0";
 
 my %nets;
 my %rigs;
 my $verbose, $help, $usage, $arg, $color;
+my $RIGCTL;
 
-my $config=$HOME . ".config/hamnets.cfg";
+my $config=$HOME . "/.config/hamnets.cfg";
 
 ########################################################
 
@@ -192,9 +187,6 @@ sub set_net {
 
 	# Lastly, figure out which rig to send it to, and push the configs!
 	my $r=$nets{$n}{"rig"};
-	if ( ! $RIGCTL ) {
-		$RIGCTL="rigctl";
-	}
 #	print( qq^bash -c "$RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} <(($cmdlist)) \n" ^ );
 	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} - \n" ^ );
 }
@@ -363,6 +355,21 @@ if ( (m/c$/) || (m/color$/)) {
 if ( $help ) {
 	usage;
 	exit 1;
+}
+
+if ( -r "$config" ) {
+#	pwarn "Reading user configuration from $config\n";
+	unless ($return = do "$config") {
+		if ($@) { warn "couldn't parse $config: $@"; exit 1; }
+		if (!defined($return)) { warn "couldn't evaluate $config: $!"; exit 1;}
+	}
+	eval `cat $config`;
+} else {
+	pwarn "Can't read from $config!\n";
+}
+
+if ( ! $RIGCTL ) {
+	$RIGCTL="rigctl";
 }
 
 if ( !(%rigs) || !(%nets) ) {
