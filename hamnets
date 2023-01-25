@@ -15,7 +15,7 @@ use Env qw(HOME);
 # my $RIGCTL="$LDP $RIGCTLp";
 
 my $PROG=$0;
-my $VERSION="1.0";
+my $VERSION="1.2";
 
 my %nets;
 my %rigs;
