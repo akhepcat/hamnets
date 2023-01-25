@@ -1,10 +1,7 @@
 # hamnets
   CLI tool for managing rigctl capable amateur radios and chat ('Nets)  favorites
 
-<<<<<<< Development
-=======
 
->>>>>>> main
 # Usage
   The application will display any configured 'Nets, sorted by their rig,
   then by the day, followed by the time.
