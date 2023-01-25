@@ -187,6 +187,9 @@ sub set_net {
 
 	# Lastly, figure out which rig to send it to, and push the configs!
 	my $r=$nets{$n}{"rig"};
+	if ( ! $RIGCTL ) {
+		$RIGCTL="rigctl";
+	}
 #	print( qq^bash -c "$RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} <(($cmdlist)) \n" ^ );
 	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} - \n" ^ );
 }
