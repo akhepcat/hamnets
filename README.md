@@ -23,6 +23,18 @@
              akerc ( 14.2920 MHz USB) - 08:30 (.MTWRF.) - Alaska Pacific Emergency Preparedness Net
               noon (  3.9200 MHz LSB) - 12:00 (.MTWRF.) - Old Timers Noontime net
 
+    $ hamnets noon
+      Selected noon
+
+      F 3920000 
+      M LSB 0 
+      F 3920000 
+      L ROOFINGFILTER 2 
+      L PREAMP 10 
+      L NB 0 
+      L NB 0.1 
+      U NR 1 
+
 
 # Color
   The application can provide the information above in color, with additional
