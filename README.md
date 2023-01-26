@@ -69,7 +69,7 @@
                    "nr" => 0.1,                 # Opt: (Digital) Noise Reduction depth (0=off, range dependent on rig)
                  "rfil" => 2,                   # Opt: Roofing filter width to use (values rig dependent)
                "preamp" => 10,                  # Opt: What preamp level to use (values rig dependent)
-               "starts" => "08:30",             # Req: 24h clock, aka military time
+               "starts" => "08:30",             # Req: 24h clock, aka military time; in *local* time
                "duration" => "30",              # Opt: duration in minutes, default is 60m
                "days" => "MTWRF",               # Req: s'U'nday, M, T, W, thu'R'sday, F, S
          "desc" => "Alaska Pacific Emergency Preparedness Net",  # Req: The description of the 'Net
