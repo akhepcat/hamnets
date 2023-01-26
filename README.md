@@ -35,7 +35,7 @@
 
 # Configuration
   hamnets is a perl script, and the configuration file it uses is also pure
-  perl code.  An example configuration file [[hamnets.cfg]] is supplied in
+  perl code.  An example configuration file [hamnets.cfg] is supplied in
   this repository, and should be placed in the ".config/" directory under
   your user's home.  
 
