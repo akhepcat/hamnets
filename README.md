@@ -51,9 +51,9 @@
   The rig name "FT-817" is also used in the 'nets' section to define which
   rig to send configuration parameters to.
 
-  'model' is the rigctl model number, found by "rigctl -L | grep (my rig name)"
-  'dev'  is the unix device name to use.  Use udev rules to make your life easier and the names consistent!
-  'opts' are any additional rig-specific configurations that rigctl needs
+  * 'model' is the rigctl model number, found by "rigctl -L | grep (my rig name)"
+  * 'dev'  is the unix device name to use.  Use udev rules to make your life easier and the names consistent!
+  * 'opts' are any additional rig-specific configurations that rigctl needs
 
 ## config -> nets
   This is perhaps the most critical part of the configuration, and has the
