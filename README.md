@@ -45,6 +45,7 @@
   Each rig is defined by its name, model number, device, and optional
   arguments for rigctl to use for this particular rig.   An example rig
   looks like this
+
     %{$rigs{"FT-817"}} = ( "model" => 1020, "dev" => "/dev/digirig", "opts" => "-P RTS" );
 
   The rig name "FT-817" is also used in the 'nets' section to define which
