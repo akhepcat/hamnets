@@ -95,10 +95,13 @@ sub set_net {
 	my $n=shift;
 	my $cmdlist;
 	
-	# Set the Mode and bandwidth first
+	# Set the initial frequency; some radios want this first... 
+	$cmdlist.=qq|F $nets{$n}{"freq"}\n|;
+
+	# Set the Mode and bandwidth next....
 	$cmdlist.=qq|M $nets{$n}{"mode"} $nets{$n}{"pbf"}\n|;
 
-	# Set the frequency after mode, so we don't run into offsetting
+	# Re-set the frequency after mode, so we don't run into offsetting
 	$cmdlist.=qq|F $nets{$n}{"freq"}\n|;
 
 	# next set repeater offset frequencies, if applicable
