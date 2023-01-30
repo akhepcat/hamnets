@@ -8,18 +8,25 @@
 
     $ hamnets
       net for today can be:
+        [ ] time passed
+        [*] Currently in progress
+        [!] starting within 15m
+        [>] starting within 90m
+        [L] starting much later
 
         FT-817:
            morning (145.5000 MHz  FM) - 10:00 (UMTWRFS) - Alaska Morning Net
              south (146.5200 MHz  FM) - 19:00 (...W...) - SouthCentral simplex
 
         FTdx10:
-            pacsea ( 14.3000 MHz USB) - 18:00 (UMTWRFS) - Pacific Seafarers Net
-           snipers (  3.9200 MHz LSB) - 18:00 (UMTWRFS) - Alaska Snipers Net
-              bush (  7.0930 MHz LSB) - 20:00 (UMTWRFS) - Alaska Bush Net
-            motley (  3.9330 MHz LSB) - 21:00 (UMTWRFS) - Alaska Motley Net, by KL7G
+    *     maritime ( 14.3000 MHz USB) - 08:00 (UMTWRFS) - Maritime Mobile Service Net (12:00 - 21:00 EST)
+    L      snipers (  3.9200 MHz LSB) - 18:00 (UMTWRFS) - Alaska Snipers Net
+    L       pacsea ( 14.3000 MHz USB) - 18:00 (UMTWRFS) - Pacific Seafarers Net
+    L         bush (  7.0930 MHz LSB) - 20:00 (UMTWRFS) - Alaska Bush Net
+    L       motley (  3.9330 MHz LSB) - 21:00 (UMTWRFS) - Alaska Motley Net, by KL7G
              akerc ( 14.2920 MHz USB) - 08:30 (.MTWRF.) - Alaska Pacific Emergency Preparedness Net
               noon (  3.9200 MHz LSB) - 12:00 (.MTWRF.) - Old Timers Noontime net
+
 
     $ hamnets noon
       Selected noon
@@ -79,8 +86,8 @@
 
 
 # Color
-  The application can provide the information above in color, with additional
-  information to distinguish between upcoming, in progress, and past Nets
+  The application can provide the information above in color, to provide
+  better visual information to distinguish between upcoming, in progress, and past Nets
   for today
 
   This is enabled by either passing the '-c' flag to the application, or
@@ -91,4 +98,20 @@
 # Verbose
   Verbose mode ( '-v' ) enables viewing of all configured nets, instead of
   just those scheduled for today.
+
+
+# List Rigs
+  -R  will display the currently configured rigs
+
+# Force a rig
+  -r|--rig  [rigname]   will allow you to temporarily force a different rig for
+  the specified 'Net.  It's useful if you have two different rigs with similar
+  band capabilities, and you want to use the alternate rig for monitoring.  
+  * This may generate errors or warnings, so YMMV.  hamlib/rigctl is usually
+  forgiving though.
+
+# Force a device
+  -d|--dev  [device path]  will allow you to temporarily force a different
+  device in case your system renumbers things on you and you can't be arsed
+  to edit your config file.
 
