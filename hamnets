@@ -9,7 +9,7 @@ use Getopt::Long;
 use Env qw(HOME);
 
 my $PROG=$0;
-my $VERSION="2.0";
+my $VERSION="2.1";
 
 my %nets;
 my %rigs;
@@ -267,11 +267,11 @@ sub timetomins {
 }
 	
 sub soon {
-	my ($s,$dur) = @_;
-	my $t = timetomins( (localtime)[2] . ":" . (localtime)[1] );
-	my $d = $s - $t;
-
-#	print "\nDBG: s: $s,  t: $t,  d: $d\n";		
+	my $s = timetomins(int($_[0]));
+	my $dur = int($_[1])>60?int($_[1]):60;
+	my $t = timetomins( (localtime())[2] . ":" . (localtime())[1] );
+	my $d = $s - $t;	# delta between start and now
+	
 	if ($s > $t) {
 		# upcoming events
 		if ( $d <= 15 ) {
@@ -282,7 +282,7 @@ sub soon {
 			return 3;
 		}
 	} else {
-		if ( (($dur != 0) && ($d > -($dur))) || ($d > -60) ) {
+		if ( (($dur != 0) && ($d > -($dur))) ) {
 			return 4;
 		}
 	}
@@ -308,7 +308,12 @@ sub displaynets {
 			printf("\n\t%s:\n", $rig );
 			foreach my $net (sort { ( dsum($b) <=> dsum($a) ) } keys %nets) {
 				if ( $color && istoday($nets{$net}{"days"}) ) {
-					my $s = soon(timetomins($nets{$net}{"starts"}));
+					my $s;
+					if (defined($nets{$net}{"duration"})) {
+						$s = soon($nets{$net}{"starts"}, $nets{$net}{"duration"});
+					} else {
+						$s = soon($nets{$net}{"starts"});
+					}
 					if ( $s eq 1) {
 						pcolor($green);
 					} elsif ( $s eq 2) {
