@@ -35,9 +35,11 @@
 
 # Configuration
   hamnets is a perl script, and the configuration file it uses is also pure
-  perl code.  An example configuration file [hamnets.cfg] is supplied in
-  this repository, and should be placed in the ".config/" directory under
-  your user's home.  
+  perl code.  Example configuration files are supplied in under the net-cfgs
+  directory. You can either take one, and copy it wholesale into the ".config/" directory under
+  your user's home as "hamnets.cfg",  or use it as a starting point for your
+  own local area.  Feel free to send area examples back to me for
+  distribution as a pull request.
 
   There are two basic sections, the "rigs" and the "nets"
 
