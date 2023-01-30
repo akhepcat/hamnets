@@ -13,7 +13,7 @@ my $VERSION="2.1";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color;
+my $verbose, $help, $usage, $arg, $color, $myrig, $mydev;
 my $RIGCTL;
 
 my $config=$HOME . "/.config/hamnets.cfg";
@@ -189,12 +189,27 @@ sub set_net {
 	}
 
 	# Lastly, figure out which rig to send it to, and push the configs!
-	my $r=$nets{$n}{"rig"};
+	my $r, $d, $m;
+
+	if ( defined($myrig) && defined($rigs{$myrig}) ) {
+		$r=$myrig;
+		$m=$rigs{$myrig}{'model'};
+		pwarn "Attempting to force Net to use $myrig, not all features may be supported\n";
+	} else {
+		$r=$nets{$n}{"rig"};
+		$m=$rigs{$r}{'model'};
+	}
+
+	if (defined($mydev) && ( -e $mydev && -R _ ) ) {
+		$d=$mydev;
+	} else {
+		$d=$rigs{$r}{"dev"};
+	}
+
 	if ( ! $RIGCTL ) {
 		$RIGCTL="rigctl";
 	}
-#	print( qq^bash -c "$RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} <(($cmdlist)) \n" ^ );
-	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $rigs{$r}{'dev'} -m $rigs{$r}{'model'} $rigs{$r}{"opts"} - \n" ^ );
+	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $d -m $m $rigs{$r}{"opts"} - \n" ^ );
 }
 
 sub pweek {
@@ -249,10 +264,13 @@ sub istoday {
 }
 
 sub usage {
-	perror "usage: ${PROG} [-v] [-h] [net]\n";
+	perror "usage: ${PROG} -[vchrdR] --[rig|dev] [net]\n";
 	print "       ver: $VERSION\n";
 	pwarn "\t -v  verbosely show all nets, instead of just for today\n";
 	pwarn "\t -c  enable Color\n";
+	pwarn "\t -R  list configured rigs\n";
+	pwarn "\t -r|--rig  force a specific rig for Net\n";
+	pwarn "\t -d|--dev  force a specific device for rig\n";
 	pwarn "\t -h  this help\n";
 }
 
@@ -287,6 +305,14 @@ sub soon {
 		}
 	}
 	return 0;
+}
+
+sub listrigs {
+	printf("%10.10s | %10.10s | %s\n", "Rig", "Device", "rigctl mode");
+
+	foreach my $rig (sort keys %rigs) {
+		printf("%10.10s | %10.10s | %5i\n", $rig, $rigs{$rig}{'dev'}, $rigs{$rig}{'model'});
+	}
 }
 
 sub displaynets {
@@ -354,10 +380,14 @@ GetOptions(
   "v!"  => \$verbose,
   "h!"  => \$help,
   "c!"  => \$color,
+  "r|rig=s" => \$myrig,
+  "R!" => \$rlist,
+  "d|dev=s" => \$mydev,
 );
 
 $arg = $ARGV[0];
 
+$PROG =~ s|^.*/||g;
 $_ = $PROG;
 if ( (m/c$/) || (m/color$/)) {
 	$color=1;
@@ -383,6 +413,11 @@ if ( ! $RIGCTL ) {
 	$RIGCTL="rigctl";
 }
 
+if ( $rlist ) {
+	listrigs;
+	exit 0;
+}
+
 if ( !(%rigs) || !(%nets) ) {
 	fallback;
 }
@@ -400,4 +435,3 @@ if (defined($nets{$arg})) {
 }
 
 printf("\n");
-
