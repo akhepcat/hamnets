@@ -321,19 +321,17 @@ sub displaynets {
 	} else {
 	        cprint(51, "  net for today can be:\n");
 	}
-	if ($color) {
-		cprint($grey,  "     * time passed\n");
-		cprint($brgreen,  "     * Currently in progress\n");
-		cprint($green,  "     * starting within 15m\n");
-		cprint($orange, "     * starting within 90m\n");
-		cprint($brown,  "     * starting much later\n");
-	}
+	cprint($grey,    "    [ ] time passed\n");
+	cprint($brgreen, "    [*] Currently in progress\n");
+	cprint($green,   "    [!] starting within 15m\n");
+	cprint($orange,  "    [>] starting within 90m\n");
+	cprint($brown,   "    [L] starting much later\n");
 
 	foreach my $rig (sort keys %rigs) {
 		if ( -e $rigs{$rig}{"dev"} && -R _ ) {
 			printf("\n\t%s:\n", $rig );
 			foreach my $net (sort { ( dsum($b) <=> dsum($a) ) } keys %nets) {
-				if ( $color && istoday($nets{$net}{"days"}) ) {
+				if ( $nets{$net}{"rig"} eq $rig && ($verbose || istoday($nets{$net}{"days"})) ) {
 					my $s;
 					if (defined($nets{$net}{"duration"})) {
 						$s = soon($nets{$net}{"starts"}, $nets{$net}{"duration"});
@@ -341,29 +339,27 @@ sub displaynets {
 						$s = soon($nets{$net}{"starts"});
 					}
 					if ( $s eq 1) {
-						pcolor($green);
+						$color?pcolor($green):printf(" !");
 					} elsif ( $s eq 2) {
-                                                pcolor($orange);
+                                                $color?pcolor($orange):printf(" >");
 					} elsif ( $s eq 3) {
-                                                pcolor($brown);
+                                                $color?pcolor($brown):printf(" L");
 					} elsif ( $s eq 4) {
-                                                pcolor($brgreen);
+                                                $color?pcolor($brgreen):printf(" *");
 					} else {
-						pcolor($grey);
+						$color?pcolor($grey):printf("  ");
 					}
-				}
+					printf("\t%10s (%8.04f MHz %3.3s) - %5.5s (%s) - %s\n", 
+						$net, 
+						$nets{$net}{"freq"} / 1000000,
+						$nets{$net}{"mode"}, 
+						$nets{$net}{"starts"}, 
+						pweek($nets{$net}{"days"}), 
+						$nets{$net}{"desc"} );
 
-				printf("\t%10s (%8.04f MHz %3.3s) - %5.5s (%s) - %s\n", 
-					$net, 
-					$nets{$net}{"freq"} / 1000000,
-					$nets{$net}{"mode"}, 
-					$nets{$net}{"starts"}, 
-					pweek($nets{$net}{"days"}), 
-					$nets{$net}{"desc"} ) 
-					if ( $nets{$net}{"rig"} eq $rig && ($verbose || istoday($nets{$net}{"days"}))) ;
-
-				if ($color) {
-					pcolor(-1);
+					if ($color) {
+						pcolor(-1);
+					}
 				}
 			}
 		}
