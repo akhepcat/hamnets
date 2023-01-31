@@ -8,6 +8,7 @@ use POSIX qw(strftime), qw(tzset);
 use Getopt::Long;
 use Env qw(HOME);
 
+my $LTZ=$ENV{TZ};	# save the local timezone for later
 my $PROG=$0;
 my $VERSION="3.5.3";
 
@@ -376,9 +377,11 @@ sub displaynets {
 					if ($color) {
 						pcolor(-1);
 					}
-					# Reset the timezone
-					$ENV{TZ} = $LTZ;
-					tzset;
+					# Reset the timezone if needed
+					if ($ENV{TZ} != $LTZ) {
+						$ENV{TZ} = $LTZ;
+						tzset;
+					}
 				}
 			}
 		}
