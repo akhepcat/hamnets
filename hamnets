@@ -9,7 +9,7 @@ use Getopt::Long;
 use Env qw(HOME);
 
 my $PROG=$0;
-my $VERSION="3.0";
+my $VERSION="3.3";
 
 my %nets;
 my %rigs;
