@@ -356,7 +356,7 @@ sub displaynets {
 					}
 
 					if ( $nets{$net}{"rig"} eq $rig && ( istoday($nets{$net}{"days"}) || $verbose ) ) {
-						printf("\t%10s (%8.04f MHz %3.3s) - %5.5s (%s) - %s\n", 
+						printf("\t%15s (%8.04f MHz %3.3s) - %5.5s (%s) - %s\n", 
 							$net, 
 							$nets{$net}{"freq"} / 1000000,
 							$nets{$net}{"mode"}, 
