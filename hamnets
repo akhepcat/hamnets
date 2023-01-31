@@ -4,7 +4,7 @@
 # Permanent home:  https://github.com/akhepcat/hamnets
 # Direct download: https://raw.githubusercontent.com/akhepcat/hamnets/main/hamnets
 # 
-use POSIX qw(strftime);
+use POSIX qw(strftime), qw(tzset);
 use Getopt::Long;
 use Env qw(HOME);
 
@@ -272,6 +272,7 @@ sub usage {
 	pwarn "\t -r|--rig  force a specific rig for Net\n";
 	pwarn "\t -d|--dev  force a specific device for rig\n";
 	pwarn "\t -n|--netcfg use an alternate nets config file\n";
+	pwarn "\t -u  use UTC instead of localtime\n";
 	pwarn "\t -h  this help\n";
 }
 
@@ -384,6 +385,7 @@ GetOptions(
   "v!"  => \$verbose,
   "h!"  => \$help,
   "c!"  => \$color,
+  "u!"  => \$utc,
   "r|rig=s" => \$myrig,
   "R!" => \$rlist,
   "d|dev=s" => \$mydev,
@@ -401,6 +403,11 @@ if ( (m/c$/) || (m/color$/)) {
 if ( $help ) {
 	usage;
 	exit 1;
+}
+
+if ($utc) {
+	$ENV{TZ} = "UTC";
+	tzset;
 }
 
 if ( -e $mynet ) {
