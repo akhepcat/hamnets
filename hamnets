@@ -264,13 +264,14 @@ sub istoday {
 }
 
 sub usage {
-	perror "usage: ${PROG} -[vchrdR] --[rig|dev] [net]\n";
+	perror "usage: ${PROG} -[vnchrdR] --[rig|dev|netcfg] [net]\n";
 	print "       ver: $VERSION\n";
 	pwarn "\t -v  verbosely show all nets, instead of just for today\n";
 	pwarn "\t -c  enable Color\n";
 	pwarn "\t -R  list configured rigs\n";
 	pwarn "\t -r|--rig  force a specific rig for Net\n";
 	pwarn "\t -d|--dev  force a specific device for rig\n";
+	pwarn "\t -n|--netcfg use an alternate nets config file\n";
 	pwarn "\t -h  this help\n";
 }
 
@@ -386,7 +387,7 @@ GetOptions(
   "r|rig=s" => \$myrig,
   "R!" => \$rlist,
   "d|dev=s" => \$mydev,
-  "n|nets=s" => \$mynet,
+  "n|netcfg=s" => \$mynet,
 );
 
 $arg = $ARGV[0];
@@ -404,8 +405,10 @@ if ( $help ) {
 
 if ( -e $mynet ) {
 	$_ = $mynet;
-	if (! (m/\//)) {
+	if (! (m/^.?\//)) {
 		$config="./" . $mynet;
+	} else {
+		$config=$mynet;
 	}
 	pwarn "Reading user configuration from $config\n";
 } elsif (defined($mynet)) {
