@@ -13,7 +13,7 @@ my $VERSION="3.5.3";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, $cnetcfg, $crigcfg;
+my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, $netcfg, $rigcfg;
 my $RIGCTL;
 
 my $cfgdir=$HOME . "/.config/hamnets";
@@ -334,6 +334,13 @@ sub displaynets {
 			printf("\n\t%s:\n", $rig );
 			foreach my $net (sort { ( dsum($b) <=> dsum($a) ) } keys %nets) {
 				if ( $nets{$net}{"rig"} eq $rig) {
+
+					if (defined($nets{$net}{"tz"}) ) {
+						# fixup the timezone
+						$ENV{TZ} = $nets{$net}{"tz"};
+						tzset;
+					}
+
 					if (istoday($nets{$net}{"days"})) {
 						my $s;
 						if (defined($nets{$net}{"duration"})) {
@@ -369,6 +376,9 @@ sub displaynets {
 					if ($color) {
 						pcolor(-1);
 					}
+					# Reset the timezone
+					$ENV{TZ} = $LTZ;
+					tzset;
 				}
 			}
 		}
@@ -402,8 +412,8 @@ GetOptions(
   "r|rig=s" => \$myrig,
   "l|list!" => \$rlist,
   "d|dev=s" => \$mydev,
-  "N|netcfg=s" => \$cnetcfg,
-  "R|rigcfg=s" => \$crigcfg,
+  "N|netcfg=s" => \$netcfg,
+  "R|rigcfg=s" => \$rigcfg,
 );
 
 $arg = $ARGV[0];
@@ -424,16 +434,16 @@ if ($utc) {
 	tzset;
 }
 
-if ( -e $crigcfg ) {
-	$_ = $crigcfg;
+if ( -e $rigcfg ) {
+	$_ = $rigcfg;
 	if (! (m/^.?\//)) {
-		$config="./" . $crigcfg;
+		$config="./" . $rigcfg;
 	} else {
-		$config=$crigcfg;
+		$config=$rigcfg;
 	}
 	pwarn "Reading user configuration from $config\n";
-} elsif (defined($cnetcfg)) {
-	perror "Can't read alternate net config from $crigcfg\n";
+} elsif (defined($rigcfg)) {
+	perror "Can't read alternate net config from $rigcfg\n";
 	exit 1;
 } else {
 	$config=$cfgdir . "/rigs.cfg";
@@ -442,16 +452,16 @@ loadcfg($config);
 
 ## Check for custom NETs config
 
-if ( -e $cnetcfg ) {
-	$_ = $cnetcfg;
+if ( -e $netcfg ) {
+	$_ = $netcfg;
 	if (! (m/^.?\//)) {
-		$config="./" . $cnetcfg;
+		$config="./" . $netcfg;
 	} else {
-		$config=$cnetcfg;
+		$config=$netcfg;
 	}
 	pwarn "Reading user configuration from $config\n";
-} elsif (defined($mynet)) {
-	perror "Can't read alternate net config from $cnetcfg\n";
+} elsif (defined($netcfg)) {
+	perror "Can't read alternate net config from $netcfg\n";
 	exit 1;
 } else {
 	$config=$cfgdir . "/nets.cfg";
