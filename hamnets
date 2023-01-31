@@ -9,15 +9,14 @@ use Getopt::Long;
 use Env qw(HOME);
 
 my $PROG=$0;
-my $VERSION="3.3";
+my $VERSION="3.5.3";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet;
+my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, $cnetcfg, $crigcfg;
 my $RIGCTL;
 
-my $config=$HOME . "/.config/hamnets.cfg";
-
+my $cfgdir=$HOME . "/.config/hamnets";
 ########################################################
 
 sub fallback {
@@ -264,16 +263,17 @@ sub istoday {
 }
 
 sub usage {
-	perror "usage: ${PROG} -[vnchrdR] --[rig|dev|netcfg] [net]\n";
+	perror "usage: ${PROG} {OPTIONS} [net]\n";
 	print "       ver: $VERSION\n";
-	pwarn "\t -v  verbosely show all nets, instead of just for today\n";
-	pwarn "\t -c  enable Color\n";
-	pwarn "\t -R  list configured rigs\n";
-	pwarn "\t -r|--rig  force a specific rig for Net\n";
-	pwarn "\t -d|--dev  force a specific device for rig\n";
-	pwarn "\t -n|--netcfg use an alternate nets config file\n";
-	pwarn "\t -u  use UTC instead of localtime\n";
-	pwarn "\t -h  this help\n";
+	pwarn "\t -v|--verbose	verbosely show all nets, instead of just for today\n";
+	pwarn "\t -c|--color	enable Color\n";
+	pwarn "\t -l|--list	list configured rigs\n";
+	pwarn "\t -r|--rig	force a specific rig for Net\n";
+	pwarn "\t -d|--dev	force a specific device for rig\n";
+	pwarn "\t -N|--netcfg	use an alternate nets config file\n";
+	pwarn "\t -R|--rigcfg	use an alternate rig config file\n";
+	pwarn "\t -u|--utc	use UTC instead of localtime\n";
+	pwarn "\t -h|--help	this help\n";
 }
 
 sub timetomins {
@@ -376,20 +376,34 @@ sub displaynets {
 	printf("\n");
 }
 
+sub loadcfg {
+	my $config = shift;
+
+	if ( -e $config && -R _ ) {
+		unless ($return = do "$config") {
+			if ($@) { warn "couldn't parse $config: $@"; exit 1; }
+			if (!defined($return)) { warn "couldn't evaluate $config: $!"; exit 1;}
+		}
+		eval `cat $config`;
+		} else {
+		pwarn "Can't read from $config!\n";
+	}
+}
 
 ############################################################
 
 
 #Get the options from the command line.
 GetOptions(
-  "v!"  => \$verbose,
-  "h!"  => \$help,
-  "c!"  => \$color,
-  "u!"  => \$utc,
+  "v|verbose!"  => \$verbose,
+  "h|help!"  => \$help,
+  "c|color!"  => \$color,
+  "u|utc!"  => \$utc,
   "r|rig=s" => \$myrig,
-  "R!" => \$rlist,
+  "l|list!" => \$rlist,
   "d|dev=s" => \$mydev,
-  "n|netcfg=s" => \$mynet,
+  "N|netcfg=s" => \$cnetcfg,
+  "R|rigcfg=s" => \$crigcfg,
 );
 
 $arg = $ARGV[0];
@@ -410,28 +424,40 @@ if ($utc) {
 	tzset;
 }
 
-if ( -e $mynet ) {
-	$_ = $mynet;
+if ( -e $crigcfg ) {
+	$_ = $crigcfg;
 	if (! (m/^.?\//)) {
-		$config="./" . $mynet;
+		$config="./" . $crigcfg;
 	} else {
-		$config=$mynet;
+		$config=$crigcfg;
+	}
+	pwarn "Reading user configuration from $config\n";
+} elsif (defined($cnetcfg)) {
+	perror "Can't read alternate net config from $crigcfg\n";
+	exit 1;
+} else {
+	$config=$cfgdir . "/rigs.cfg";
+}
+loadcfg($config);
+
+## Check for custom NETs config
+
+if ( -e $cnetcfg ) {
+	$_ = $cnetcfg;
+	if (! (m/^.?\//)) {
+		$config="./" . $cnetcfg;
+	} else {
+		$config=$cnetcfg;
 	}
 	pwarn "Reading user configuration from $config\n";
 } elsif (defined($mynet)) {
-	perror "Can't read alternate net config from $mynet\n";
+	perror "Can't read alternate net config from $cnetcfg\n";
 	exit 1;
-}
-
-if ( -e $config && -R _ ) {
-	unless ($return = do "$config") {
-		if ($@) { warn "couldn't parse $config: $@"; exit 1; }
-		if (!defined($return)) { warn "couldn't evaluate $config: $!"; exit 1;}
-	}
-	eval `cat $config`;
 } else {
-	pwarn "Can't read from $config!\n";
+	$config=$cfgdir . "/nets.cfg";
 }
+loadcfg($config);
+
 
 if ( ! $RIGCTL ) {
 	$RIGCTL="rigctl";
