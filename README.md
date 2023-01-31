@@ -2,7 +2,25 @@
   CLI tool for managing rigctl capable amateur radios and chat ('Nets)  favorites
 
 
-# Usage
+# INSTALL
+  hamnets requires a basic perl instance, and hamlib with rigctl.
+
+  clone the repository onto your computer
+
+  Either place a copy of the script into a directory in your PATH (~/bin, /usr/local/bin, etc.)
+  or create a symlink from the repository script into one of those directories.
+
+  Create the application config directory:
+
+    $ mkdir ~/.config/hamnets
+
+  Copy one of the example rigs config files into that directory as 'rigs.cfg'
+
+  Copy one of the example nets config files into that directory as 'nets.cfg'
+
+  Run the script!
+
+# USAGE
   The application will display any configured 'Nets, sorted by their rig,
   then by the day, followed by the time.
 
@@ -43,12 +61,9 @@
 # Configuration
   hamnets is a perl script, and the configuration file it uses is also pure
   perl code.  Example configuration files are supplied in under the net-cfgs
-  directory. You can either take one, and copy it wholesale into the ".config/" directory under
-  your user's home as "hamnets.cfg",  or use it as a starting point for your
-  own local area.  Feel free to send area examples back to me for
-  distribution as a pull request.
+  and rigs-cfgs directories. 
 
-  There are two basic sections, the "rigs" and the "nets"
+  Feel free to send your customizations back to me for distribution as a pull request.
 
 ## Config -> rigs
   Each rig is defined by its name, model number, device, and optional
@@ -85,33 +100,49 @@
                  );
 
 
-# Color
-  The application can provide the information above in color, to provide
-  better visual information to distinguish between upcoming, in progress, and past Nets
-  for today
+# Options
 
-  This is enabled by either passing the '-c' flag to the application, or
-  by creating a symlink to the main application with a trailing 'c', or
+## Color
+  -c|--color  allows the application to provide the information above in color, providing
+  better visual information to distinguish between upcoming, in progress, and past Nets
+  for today.
+
+  Alternatively, create a symlink to the main application with a trailing 'c', or
   'color',  i.e.,  "hamnetsc", "hamnets-c", "hamnets-color", etc.
 
 
-# Verbose
-  Verbose mode ( '-v' ) enables viewing of all configured nets, instead of
+## Verbose
+  -v|--verbose enables viewing of all configured nets, instead of
   just those scheduled for today.
 
 
-# List Rigs
-  -R  will display the currently configured rigs
+## List Rigs
+  -l|--list  will display the currently configured rigs
 
-# Force a rig
+## Force a rig
   -r|--rig  [rigname]   will allow you to temporarily force a different rig for
   the specified 'Net.  It's useful if you have two different rigs with similar
   band capabilities, and you want to use the alternate rig for monitoring.  
   * This may generate errors or warnings, so YMMV.  hamlib/rigctl is usually
   forgiving though.
 
-# Force a device
+## Force a device
   -d|--dev  [device path]  will allow you to temporarily force a different
   device in case your system renumbers things on you and you can't be arsed
   to edit your config file.
+
+## UTC mode
+  -u|--utc  (WORK IN PROGRESS) forces the application to treat all times as
+  being in UTC.  Nothing is currently converted into localtime, which may be
+  confusing.
+
+## RIGs config file
+  -R|--rigcfg [path to config file]
+
+  defaults to  ${HOME}/.config/hamnets/rigs.cfg
+
+## NETs config file
+  -N|--netcfg [path to config file]
+
+  defaults to  ${HOME}/.config/hamnets/nets.cfg
 
