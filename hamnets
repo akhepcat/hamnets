@@ -13,7 +13,7 @@ my $VERSION="3.0";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color, $myrig, $mydev;
+my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet;
 my $RIGCTL;
 
 my $config=$HOME . "/.config/hamnets.cfg";
@@ -379,6 +379,7 @@ GetOptions(
   "r|rig=s" => \$myrig,
   "R!" => \$rlist,
   "d|dev=s" => \$mydev,
+  "n|nets=s" => \$mynet,
 );
 
 $arg = $ARGV[0];
@@ -394,8 +395,18 @@ if ( $help ) {
 	exit 1;
 }
 
-if ( -r "$config" ) {
-#	pwarn "Reading user configuration from $config\n";
+if ( -e $mynet ) {
+	$_ = $mynet;
+	if (! (m/\//)) {
+		$config="./" . $mynet;
+	}
+	pwarn "Reading user configuration from $config\n";
+} elsif (defined($mynet)) {
+	perror "Can't read alternate net config from $mynet\n";
+	exit 1;
+}
+
+if ( -e $config && -R _ ) {
 	unless ($return = do "$config") {
 		if ($@) { warn "couldn't parse $config: $@"; exit 1; }
 		if (!defined($return)) { warn "couldn't evaluate $config: $!"; exit 1;}
