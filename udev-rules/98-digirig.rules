@@ -1,0 +1,19 @@
+# [1274687.135888] usb 1-1.2: New USB device found, idVendor=0424, idProduct=2412, bcdDevice= b.b2
+
+#[1274687.786010] usb 1-1.2.1: New USB device found, idVendor=0d8c, idProduct=013c, bcdDevice= 1.00
+#[1274688.292505] input: C-Media Electronics Inc.       USB PnP Sound Device as /devices/pci0000:00/0000:00:01.3/0000:03:00.0/usb1/1-1/1-1.2/1-1.2.1/1-1.2.1:1.3/0003:0D8C:013C.002C/input/input37
+# [    3.381814] usb 7-2.1.1: Manufacturer: C-Media Electronics Inc.      
+
+#[1274688.765172] usb 1-1.2.2: New USB device found, idVendor=10c4, idProduct=ea60, bcdDevice= 1.00
+#[1274688.765186] usb 1-1.2.2: Product: CP2102N USB to UART Bridge Controller
+#[1274688.821502] usb 1-1.2.2: cp210x converter now attached to ttyUSB0
+
+
+SUBSYSTEM=="usb", ATTR{idVendor}=="0424", ATTR{idProduct}=="2412", GROUP="plugdev", MODE:="0660"
+SUBSYSTEM=="usb", ATTR{idVendor}=="0d8c", ATTR{idProduct}=="013c", GROUP="plugdev", MODE:="0660", ENV{ACP_PROFILE_SET}="cmedia-high-speed-true-hdaudio.conf"
+# SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", ATTR{idProduct}=="ea60", GROUP="plugdev", MODE:="0660", SYMLINK+="digirig"
+SUBSYSTEM=="tty", \
+    ENV{ID_VENDOR_ID}=="10c4", ENV{ID_MODEL_ID}=="ea60", \
+    ENV{ID_USB_INTERFACE_NUM}=="00", \
+    SYMLINK+="digirig"
+

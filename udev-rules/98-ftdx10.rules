@@ -1,0 +1,16 @@
+#  usb 7-2: New USB device found, idVendor=0424, idProduct=2512, bcdDevice= b.b3
+SUBSYSTEM=="usb", ATTR{idVendor}=="0424", ATTR{idProduct}=="2512", GROUP="plugdev", MODE:="0660"
+
+#  usb 7-2.1: New USB device found, idVendor=10c4, idProduct=ea70, bcdDevice= 1.00
+# SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", ATTR{idProduct}=="ea70", GROUP="plugdev", MODE:="0660", SYMLINK+="ftdx10"
+SUBSYSTEM=="tty", \
+    ENV{ID_MODEL}=="CP2105_Dual_USB_to_UART_Bridge_Controller", \
+    ENV{ID_VENDOR_ID}=="10c4", ENV{ID_MODEL_ID}=="ea70", \
+    ENV{ID_USB_INTERFACE_NUM}=="00", \
+    SYMLINK+="ftdx10"
+
+# usb 7-2.2: New USB device found, idVendor=08bb, idProduct=29c3, bcdDevice= 1.00
+# usb 7-2.2: Product: USB AUDIO  CODEC
+# usb 7-2.2: Manufacturer: BurrBrown from Texas Instruments
+#     input: BurrBrown from Texas Instruments USB AUDIO  CODEC as /devices/pci0000:00/0000:00:07.1/0000:29:00.3/usb7/7-2/7-2.2/7-2.2:1.3/0003:08BB:29C3.000E/input/input25
+#       hid: hid-generic 0003:08BB:29C3.000E: input,hidraw2: USB HID v1.00 Device [BurrBrown from Texas Instruments USB AUDIO  CODEC] on usb-0
