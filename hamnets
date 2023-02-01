@@ -4,11 +4,10 @@
 # Permanent home:  https://github.com/akhepcat/hamnets
 # Direct download: https://raw.githubusercontent.com/akhepcat/hamnets/main/hamnets
 # 
-use POSIX qw(strftime), qw(tzset);
+use POSIX qw(strftime);
 use Getopt::Long;
 use Env qw(HOME);
 
-my $LTZ=$ENV{TZ};	# save the local timezone for later
 my $PROG=$0;
 my $VERSION="3.5.3";
 
@@ -335,13 +334,6 @@ sub displaynets {
 			printf("\n\t%s:\n", $rig );
 			foreach my $net (sort { ( dsum($b) <=> dsum($a) ) } keys %nets) {
 				if ( $nets{$net}{"rig"} eq $rig) {
-
-					if (defined($nets{$net}{"tz"}) ) {
-						# fixup the timezone
-						$ENV{TZ} = $nets{$net}{"tz"};
-						tzset;
-					}
-
 					if (istoday($nets{$net}{"days"})) {
 						my $s;
 						if (defined($nets{$net}{"duration"})) {
@@ -349,13 +341,13 @@ sub displaynets {
 						} else {
 							$s = soon($nets{$net}{"starts"});
 						}
-						if ( $s eq 1) {
+						if ( $s == 1) {
 							$color?pcolor($green):printf(" !");
-						} elsif ( $s eq 2) {
+						} elsif ( $s == 2) {
 	                                                $color?pcolor($orange):printf(" >");
-						} elsif ( $s eq 3) {
+						} elsif ( $s == 3) {
 	                                                $color?pcolor($brown):printf(" L");
-						} elsif ( $s eq 4) {
+						} elsif ( $s == 4) {
 	                                                $color?pcolor($brgreen):printf(" *");
 						} else {
 							$color?pcolor($grey):0;
@@ -377,16 +369,11 @@ sub displaynets {
 					if ($color) {
 						pcolor(-1);
 					}
-					# Reset the timezone if needed
-					if ($ENV{TZ} != $LTZ) {
-						$ENV{TZ} = $LTZ;
-						tzset;
-					}
 				}
 			}
 		}
 	}
-	printf("\n");
+	print "\n";
 }
 
 sub loadcfg {
@@ -411,7 +398,6 @@ GetOptions(
   "v|verbose!"  => \$verbose,
   "h|help!"  => \$help,
   "c|color!"  => \$color,
-  "u|utc!"  => \$utc,
   "r|rig=s" => \$myrig,
   "l|list!" => \$rlist,
   "d|dev=s" => \$mydev,
@@ -430,11 +416,6 @@ if ( (m/c$/) || (m/color$/)) {
 if ( $help ) {
 	usage;
 	exit 1;
-}
-
-if ($utc) {
-	$ENV{TZ} = "UTC";
-	tzset;
 }
 
 if ( -e $rigcfg ) {
