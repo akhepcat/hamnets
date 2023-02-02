@@ -254,10 +254,30 @@ sub pweek {
     return $s;
 }
 
-sub dsum {
+sub TimeSort {
+	# returns an integer representing the start time in UTC
     my $n = shift;
     my $s=0; my $r=0;
-    my $t = $nets{$n}{"starts"};
+
+    my $tz = length($nets{$n}{"tz"})>1?$nets{$n}{"tz"}:"local";
+
+    my $dto = DateTime->now(time_zone => $tz );
+
+    # Start of the day
+    my $sodo = DateTime->new( year => $dto->year, month => $dto->month, day => $dto->day, hour => 0, minute => 0, time_zone => $tz);
+    my $sodlo = $sodo->offset;
+    $sodo->set_time_zone("UTC"); # convert to UTC
+    my $sod = $sodo->epoch;
+    $sod -= ($sod % 60);	# round it to the minute
+
+    # Start of the net in the provided timezone
+    my ($hr,$min) = split(/:/, $nets{$n}{"starts"});
+    my $sono = DateTime->new( year => $dto->year, month => $dto->month, day => $dto->day, hour => $hr, minute => $min, time_zone => $tz);	# get the zero hour for the day in the timezone
+    $sono->set_time_zone("UTC"); # convert to UTC
+    my $son = $sono->epoch;
+    $son -= ($son % 60);	# round it to the minute
+    
+    my $t = ($son - $sodlo - $sod) / 60 ;  # What minute of the day is it...
 
     $_ = $nets{$n}{"days"};
 
@@ -269,10 +289,10 @@ sub dsum {
     if (m/F/) { $s += 7**2; }
     if (m/S/) { $s += 7**1; }
 
-    $r = ($s * 10000) + (1440 - timetomins($t));
+    $r = ($s * 10000) + (1440 - $t);
+
     return ($r);
 }
-
 
 sub istoday {
 	$_ = shift;
@@ -305,16 +325,6 @@ sub usage {
 	pwarn "\t -h|--help	this help\n";
 }
 
-sub timetomins {
-	$_ = shift;
-	my ($h,$m) = split(/:/);
-	my $t = 0;
-	
-	$t = ($h * 60 ) + $m;
-
-	return($t);
-}
-	
 sub soon {
 	my $n = shift;
 	my $dur = ( defined($nets{$n}{"duration"}) && ($nets{$n}{"duration"} > 60) )?$nets{$n}{"duration"}:60;
@@ -381,7 +391,7 @@ sub displaynets {
 	foreach my $rig (sort keys %rigs) {
 		if ( -e $rigs{$rig}{"dev"} && -R _ ) {
 			printf("\n\t%s:\n", $rig );
-			foreach my $net (sort { ( dsum($b) <=> dsum($a) ) } keys %nets) {
+			foreach my $net (sort { ( TimeSort($b) <=> TimeSort($a) ) } keys %nets) {
 				if ( $nets{$net}{"rig"} eq $rig) {
 					if (istoday($nets{$net}{"days"})) {
 						my $s;
