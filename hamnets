@@ -6,16 +6,22 @@
 # 
 use Getopt::Long;
 use Env qw(HOME);
+use DateTime;
+use Date::Parse;
+use Date::Format;
+use Time::Local;
 
 my $PROG=$0;
 my $VERSION="3.6.1";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, @netcfg, @rigcfg;
+my $now, $debug, $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, @netcfg, @rigcfg;
 my $RIGCTL;
 
 my $cfgdir=$HOME . "/.config/hamnets";
+
+my @weekday = ("Sun","Mon","Tue","Wed","Thr","Fri","Sat");
 ########################################################
 
 sub fallback {
@@ -226,7 +232,11 @@ sub set_net {
 	if ( ! $RIGCTL ) {
 		$RIGCTL="rigctl";
 	}
-	system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $d -m $m $rigs{$r}{"opts"} - \n" ^ );
+	if ($debug) {
+		print( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $d -m $m $rigs{$r}{"opts"} - \n" ^ );
+	} else {
+		system( qq^bash -c "echo '$cmdlist' | $RIGCTL -r $d -m $m $rigs{$r}{"opts"} - \n" ^ );
+	}
 }
 
 sub pweek {
@@ -291,6 +301,7 @@ sub usage {
 	pwarn "\t -N|--netcfg	use an alternate nets config file\n";
 	pwarn "\t -R|--rigcfg	use an alternate rig config file\n";
 	pwarn "\t -u|--utc	use UTC instead of localtime\n";
+	pwarn "\t -D|--debug    enable debugging messages, don't send commands to rig\n";
 	pwarn "\t -h|--help	this help\n";
 }
 
@@ -305,12 +316,27 @@ sub timetomins {
 }
 	
 sub soon {
-	my $s = timetomins(int($_[0]));
-	my $dur = int($_[1])>60?int($_[1]):60;
-	my $t = timetomins( (localtime())[2] . ":" . (localtime())[1] );
-	my $d = $s - $t;	# delta between start and now
+	my $n = shift;
+	my $dur = ( defined($nets{$n}{"duration"}) && ($nets{$n}{"duration"} > 60) )?$nets{$n}{"duration"}:60;
+	my $tz = ( $nets{$n}{"tz"} && length($nets{$n}{"tz"})>1)?$nets{$n}{"tz"}:"local";	# if they don't specify, assume 'local' and figure it out later
+
+	printf("DBG: Net=%s\n",$n) if $debug >= 3;
+
+	my $dto = DateTime->now(time_zone => $tz );
+
+	my ($hr,$min) = split(/:/, $nets{$n}{"starts"});
+	my $today=$dto->day_abbr;
+	my $sono = DateTime->new( year => $dto->year, month => $dto->month, day => $dto->day, hour => $hr, minute => $min, time_zone => $tz);
+	$sono->set_time_zone("local");
+	my $t = $sono->epoch;
+
+	printf("DBG: StartToday=%i.  now=%i\n",$t, $now) if $debug >= 3;
+
+	my $d = int(($t - $now)/60); # delta between start and now, in *minutes*
 	
-	if ($s > $t) {
+	printf("DBG: Delta=%i\n",$d) if $debug >= 3;
+
+	if ($t > $now) {
 		# upcoming events
 		if ( $d <= 15 ) {
 			return 1;
@@ -359,11 +385,7 @@ sub displaynets {
 				if ( $nets{$net}{"rig"} eq $rig) {
 					if (istoday($nets{$net}{"days"})) {
 						my $s;
-						if (defined($nets{$net}{"duration"})) {
-							$s = soon($nets{$net}{"starts"}, $nets{$net}{"duration"});
-						} else {
-							$s = soon($nets{$net}{"starts"});
-						}
+						$s = soon($net);
 						if ( $s == 1) {
 							$color?pcolor($green):printf(" !");
 						} elsif ( $s == 2) {
@@ -424,9 +446,13 @@ GetOptions(
   "r|rig=s" => \$myrig,
   "l|list!" => \$rlist,
   "d|dev=s" => \$mydev,
+  "D|debug+" => \$debug,
   "N|netcfg=s" => \@netcfg,
   "R|rigcfg=s" => \@rigcfg,
 );
+
+$now = time(); # epoch (utc, hopefully!)
+$now -= ($now % 60);	# round it to the minute
 
 $arg = $ARGV[0];
 
@@ -451,10 +477,10 @@ foreach (@rigcfg) {
 		$config=$_;
 	}
 	if ( -e $config ) {
-		pwarn "Reading custom rig configuration from $config\n";
+		pwarn "Reading custom rig configuration from $config\n" if $debug;
 		loadcfg($config);
 	} else {
-		perror "Can't read alternate rig config from $config\n";
+		perror "Can't read alternate rig config from $config\n" if $debug;
 	}
 }
 
@@ -468,10 +494,10 @@ foreach (@netcfg) {
 		$config=$_;
 	}
 	if ( -e $config ) {
-		pwarn "Reading custom net configuration from $config\n";
+		pwarn "Reading custom net configuration from $config\n" if $debug;
 		loadcfg($config);
 	} else {
-		perror "Can't read alternate net config from $config\n";
+		perror "Can't read alternate net config from $config\n" if $debug;
 	}
 }
 
