@@ -70,7 +70,7 @@
   arguments for rigctl to use for this particular rig.   An example rig
   looks like this
 
-    %{$rigs{"FT-817"}} = ( "model" => 1020, "dev" => "/dev/digirig", "opts" => "-P RTS" );
+    %{$rigs{"FT-817"}} = ( "model" => 1020, "dev" => "/dev/digirig", "opts" => "-P RTS", "default" => 1 );
 
   The rig name "FT-817" is also used in the 'nets' section to define which
   rig to send configuration parameters to.
@@ -78,6 +78,7 @@
   * 'model' is the rigctl model number, found by "rigctl -L | grep (my rig name)"
   * 'dev'  is the unix device name to use.  Use udev rules to make your life easier and the names consistent!
   * 'opts' are any additional rig-specific configurations that rigctl needs
+  * 'default'  sets this rig as the default fallback rig.  Only one should be defined as the default
 
 ## config -> nets
   This is perhaps the most critical part of the configuration, and has the
@@ -130,11 +131,6 @@
   -d|--dev  [device path]  will allow you to temporarily force a different
   device in case your system renumbers things on you and you can't be arsed
   to edit your config file.
-
-## UTC mode
-  -u|--utc  (WORK IN PROGRESS) forces the application to treat all times as
-  being in UTC.  Nothing is currently converted into localtime, which may be
-  confusing.
 
 ## RIGs config file
   -R|--rigcfg [path to config file]
