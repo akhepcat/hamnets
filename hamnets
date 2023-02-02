@@ -4,12 +4,11 @@
 # Permanent home:  https://github.com/akhepcat/hamnets
 # Direct download: https://raw.githubusercontent.com/akhepcat/hamnets/main/hamnets
 # 
-use POSIX qw(strftime);
 use Getopt::Long;
 use Env qw(HOME);
 
 my $PROG=$0;
-my $VERSION="3.5.3";
+my $VERSION="3.6.1";
 
 my %nets;
 my %rigs;
@@ -20,11 +19,8 @@ my $cfgdir=$HOME . "/.config/hamnets";
 ########################################################
 
 sub fallback {
-	##  The rigs we can use => hamlib rig number, device to use, optional args for rigctl
-	%{$rigs{"FTdx10"}} = ( "model" => 1042, "dev" => "/dev/ftdx10" );
-
 	##  The 'Nets we can access
-	%{$nets{"akerc"}} = ( "rig" => "FTdx10",	# Req: The name of the rig that can use this 'Net
+	%{$nets{"akerc"}} = ( "rig" => "dummy",	# Req: The name of the rig that can use this 'Net
 		 "freq" => 14292000,		# Req: The Frequency of the 'Net
 		 "mode" => "USB",		# Req: Which modulation mode to use
 		   "pbf" => 0,			# Opt: the passband filter width for the mode, 0 uses mode default
@@ -38,6 +34,9 @@ sub fallback {
 	 "desc" => "Alaska Pacific Emergency Preparedness Net",  # Req: The description of the 'Net
 		 );
 }
+
+##  The rigs we can use => hamlib rig number, device to use, optional args for rigctl
+%{$rigs{"dummy"}} = ( "model" => 1, "dev" => "/dev/null" );
 
 ##########################################################################
 ## Color definitions, from https://raw.githubusercontent.com/fidian/ansi/master/images/color-codes.png
@@ -192,12 +191,31 @@ sub set_net {
 
 	if ( defined($myrig) && defined($rigs{$myrig}) ) {
 		$r=$myrig;
-		$m=$rigs{$myrig}{'model'};
 		pwarn "Attempting to force Net to use $myrig, not all features may be supported\n";
 	} else {
 		$r=$nets{$n}{"rig"};
+		if ( $r eq "dummy" || !defined($rigs{$r}{'model'}) ) {
+			# Can't find a valid rig, so use the dummy
+			$r="";
+			
+			if (keys %rigs == 1) {  # only the dummy rig
+				$r="dummy";
+			} else {
+				foreach my $rig (sort keys %rigs) {
+					if ( $rigs{$rig}{"default"} == 1 ) {
+						$r = $rig;
+					}
+				}
+			}
+			
+			if (!$r) {
+				$r="dummy";
+			}
+			pwarn "falling back to default rig: $r\n";
+		}
 		$m=$rigs{$r}{'model'};
 	}
+	$m=$rigs{$r}{'model'};
 
 	if (defined($mydev) && ( -e $mydev && -R _ ) ) {
 		$d=$mydev;
@@ -310,11 +328,16 @@ sub soon {
 }
 
 sub listrigs {
-	printf("%10.10s | %10.10s | %s\n", "Rig", "Device", "rigctl mode");
+	printf("%15.15s   | %10.10s | %s\n", "Rig", "Device", "rigctl mode");
 
 	foreach my $rig (sort keys %rigs) {
-		printf("%10.10s | %10.10s | %5i\n", $rig, $rigs{$rig}{'dev'}, $rigs{$rig}{'model'});
+		my $def="";
+		if (defined$rigs{$rig}{'default'} && defined$rigs{$rig}{'default'} > 0) {
+			$def="*";
+		}
+		printf("%15.15s%2s | %10.10s | %5i\n", $rig, $def, $rigs{$rig}{'dev'}, $rigs{$rig}{'model'});
 	}
+	printf("\n* default rig for $PROG\n");
 }
 
 sub displaynets {
