@@ -12,7 +12,7 @@ my $VERSION="3.6.1";
 
 my %nets;
 my %rigs;
-my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, $netcfg, $rigcfg;
+my $verbose, $help, $usage, $arg, $color, $myrig, $mydev, $mynet, @netcfg, @rigcfg;
 my $RIGCTL;
 
 my $cfgdir=$HOME . "/.config/hamnets";
@@ -424,8 +424,8 @@ GetOptions(
   "r|rig=s" => \$myrig,
   "l|list!" => \$rlist,
   "d|dev=s" => \$mydev,
-  "N|netcfg=s" => \$netcfg,
-  "R|rigcfg=s" => \$rigcfg,
+  "N|netcfg=s" => \@netcfg,
+  "R|rigcfg=s" => \@rigcfg,
 );
 
 $arg = $ARGV[0];
@@ -441,40 +441,39 @@ if ( $help ) {
 	exit 1;
 }
 
-if ( -e $rigcfg ) {
-	$_ = $rigcfg;
+## Handle the user and all custom RIG configs
+
+push(@rigcfg, $cfgdir . "/rigs.cfg");
+foreach (@rigcfg) {
 	if (! (m/^.?\//)) {
-		$config="./" . $rigcfg;
+		$config="./" . $_;
 	} else {
-		$config=$rigcfg;
+		$config=$_;
 	}
-	pwarn "Reading user configuration from $config\n";
-} elsif (defined($rigcfg)) {
-	perror "Can't read alternate net config from $rigcfg\n";
-	exit 1;
-} else {
-	$config=$cfgdir . "/rigs.cfg";
+	if ( -e $config ) {
+		pwarn "Reading custom rig configuration from $config\n";
+		loadcfg($config);
+	} else {
+		perror "Can't read alternate rig config from $config\n";
+	}
 }
-loadcfg($config);
 
-## Check for custom NETs config
+## Handle the user and all custom NET configs
 
-if ( -e $netcfg ) {
-	$_ = $netcfg;
+push(@netcfg, $cfgdir . "/nets.cfg");
+foreach (@netcfg) {
 	if (! (m/^.?\//)) {
-		$config="./" . $netcfg;
+		$config="./" . $_;
 	} else {
-		$config=$netcfg;
+		$config=$_;
 	}
-	pwarn "Reading user configuration from $config\n";
-} elsif (defined($netcfg)) {
-	perror "Can't read alternate net config from $netcfg\n";
-	exit 1;
-} else {
-	$config=$cfgdir . "/nets.cfg";
+	if ( -e $config ) {
+		pwarn "Reading custom net configuration from $config\n";
+		loadcfg($config);
+	} else {
+		perror "Can't read alternate net config from $config\n";
+	}
 }
-loadcfg($config);
-
 
 if ( ! $RIGCTL ) {
 	$RIGCTL="rigctl";
