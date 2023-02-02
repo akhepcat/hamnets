@@ -5,6 +5,9 @@
 # INSTALL
   hamnets requires a basic perl instance, and hamlib with rigctl.
 
+  You'll also need to install some additional modules:  DateTime, Date::Parse, Date::Format, Time::Local
+
+
   clone the repository onto your computer
 
   Either place a copy of the script into a directory in your PATH (~/bin, /usr/local/bin, etc.)
