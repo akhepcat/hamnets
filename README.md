@@ -86,17 +86,18 @@
   parameter, it's best that you remove it from the config stanza, or your rig
   may generate errors.  Each of the options is documented below.
 
-    %{$nets{"akerc"}} = ( "rig" => "FTdx10",    # Req: The name of the rig that can use this 'Net
+    %{$nets{"akerc"}} = ( "rig" => "FT-817",    # Req: The name of the rig that can use this 'Net
                  "freq" => 14292000,            # Req: The Frequency of the 'Net
                  "mode" => "USB",               # Req: Which modulation mode to use
-                   "pbf" => 0,                  # Opt: the passband filter width for the mode, 0 uses mode default
+                  "pbf" => 0,                   # Opt: the passband filter width for the mode, 0 uses mode default
                    "nb" => 0,                   # Opt: Noise Blanker depth (0=off, range dependent on rig)
                    "nr" => 0.1,                 # Opt: (Digital) Noise Reduction depth (0=off, range dependent on rig)
                  "rfil" => 2,                   # Opt: Roofing filter width to use (values rig dependent)
                "preamp" => 10,                  # Opt: What preamp level to use (values rig dependent)
                "starts" => "08:30",             # Req: 24h clock, aka military time; in *local* time
-               "duration" => "30",              # Opt: duration in minutes, default is 60m
-               "days" => "MTWRF",               # Req: s'U'nday, M, T, W, thu'R'sday, F, S
+             "duration" => "30",                # Opt: duration in minutes, default is 60m
+                 "days" => "MTWRF",             # Req: s'U'nday, M, T, W, thu'R'sday, F, S
+                   "tz" => "America/Chicago"    # Opt: for setting the default timezone of a 'Net
          "desc" => "Alaska Pacific Emergency Preparedness Net",  # Req: The description of the 'Net
                  );
 
@@ -135,10 +136,10 @@
 ## RIGs config file
   -R|--rigcfg [path to config file]
 
-  defaults to  ${HOME}/.config/hamnets/rigs.cfg
+  loads as many specified RIG config files as provided, along with ${HOME}/.config/hamnets/rigs.cfg
 
 ## NETs config file
   -N|--netcfg [path to config file]
 
-  defaults to  ${HOME}/.config/hamnets/nets.cfg
+  loads as many specified NET config files as provided, along with  ${HOME}/.config/hamnets/nets.cfg
 
